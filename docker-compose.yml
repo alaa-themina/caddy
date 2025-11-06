@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: themina_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    environment:
+      - BASE_DOMAIN=${BASE_DOMAIN:-themina.local}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - core-backend_ksp
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  core-backend_ksp:
+    external: true
+
