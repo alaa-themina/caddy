@@ -1,6 +1,6 @@
 {$BASE_DOMAIN:themina.local} {
-    # Caddy will automatically obtain and renew SSL certificates from Let's Encrypt
-    # and handle HTTPS
+    # Use self-signed certificate temporarily (until Let's Encrypt rate limit expires)
+    tls internal
     
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
