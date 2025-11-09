@@ -1,12 +1,6 @@
-{
-    # Global options
-    auto_https off
-    admin off
-}
-
 {$BASE_DOMAIN:themina.local} {
-    # Force HTTPS scheme for all proxied requests
-    # This tells backend services the original request was HTTPS
+    # Caddy will automatically obtain and renew SSL certificates from Let's Encrypt
+    # and handle HTTPS
     
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
@@ -14,7 +8,7 @@
         reverse_proxy gr_web:80 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Proto {scheme}
             header_up X-Forwarded-Host {host}
         }
     }
@@ -24,7 +18,7 @@
         reverse_proxy admin-frontend:4000 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Proto {scheme}
             header_up X-Forwarded-Host {host}
         }
     }
@@ -34,7 +28,7 @@
         reverse_proxy core-frontend:3000 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Proto {scheme}
             header_up X-Forwarded-Host {host}
         }
     }
