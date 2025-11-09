@@ -5,31 +5,37 @@
 }
 
 {$BASE_DOMAIN:themina.local} {
-    # Trust X-Forwarded-* headers from load balancer
-    # This is important when Caddy is behind a reverse proxy/load balancer
+    # Force HTTPS scheme for all proxied requests
+    # This tells backend services the original request was HTTPS
     
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
         uri strip_prefix /api
         reverse_proxy gr_web:80 {
-            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
-            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
         }
     }
     
     # Admin dashboard routes - forward to admin frontend (keep /dashboard prefix)
     handle /dashboard* {
         reverse_proxy admin-frontend:4000 {
-            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
-            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
         }
     }
     
     # Default route - forward to core frontend
     handle {
         reverse_proxy core-frontend:3000 {
-            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
-            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
         }
     }
     
