@@ -1,21 +1,36 @@
+{
+    # Global options
+    auto_https off
+    admin off
+}
+
 {$BASE_DOMAIN:themina.local} {
-    # Enable automatic HTTPS (will use self-signed cert for local domains)
-    # For local development, clients will need to accept the self-signed certificate
+    # Trust X-Forwarded-* headers from load balancer
+    # This is important when Caddy is behind a reverse proxy/load balancer
     
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
         uri strip_prefix /api
-        reverse_proxy gr_web:80
+        reverse_proxy gr_web:80 {
+            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        }
     }
     
     # Admin dashboard routes - forward to admin frontend (keep /dashboard prefix)
     handle /dashboard* {
-        reverse_proxy admin-frontend:4000
+        reverse_proxy admin-frontend:4000 {
+            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        }
     }
     
     # Default route - forward to core frontend
     handle {
-        reverse_proxy core-frontend:3000
+        reverse_proxy core-frontend:3000 {
+            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        }
     }
     
     # Logging for debugging
