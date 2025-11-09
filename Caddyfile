@@ -1,36 +1,23 @@
-{$BASE_DOMAIN:themina.local} {
-    # Use self-signed certificate temporarily (until Let's Encrypt rate limit expires)
-    tls internal
+{
+    auto_https disable_redirects
+}
+http://{$BASE_DOMAIN:themina.local} {
+    # HTTP only - no HTTPS/SSL for now
     
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
         uri strip_prefix /api
-        reverse_proxy gr_web:80 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up X-Forwarded-Host {host}
-        }
+        reverse_proxy gr_web:80
     }
     
     # Admin dashboard routes - forward to admin frontend (keep /dashboard prefix)
     handle /dashboard* {
-        reverse_proxy admin-frontend:4000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up X-Forwarded-Host {host}
-        }
+        reverse_proxy admin-frontend:4000
     }
     
     # Default route - forward to core frontend
     handle {
-        reverse_proxy core-frontend:3000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up X-Forwarded-Host {host}
-        }
+        reverse_proxy core-frontend:3000
     }
     
     # Logging for debugging
