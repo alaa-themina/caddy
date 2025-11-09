@@ -2,14 +2,14 @@
     # Enable automatic HTTPS (will use self-signed cert for local domains)
     # For local development, clients will need to accept the self-signed certificate
     
-    # API routes - forward to backend
-    handle /api/* {
+    # API routes - forward to backend (strip /api prefix)
+    handle /api* {
+        uri strip_prefix /api
         reverse_proxy gr_web:80
     }
     
-    # Admin dashboard routes - forward to admin frontend
-    # The admin frontend Next.js app will handle the /dashboard basePath
-    handle /dashboard/* {
+    # Admin dashboard routes - forward to admin frontend (keep /dashboard prefix)
+    handle /dashboard* {
         reverse_proxy admin-frontend:4000
     }
     
