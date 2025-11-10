@@ -4,6 +4,18 @@
 http://{$BASE_DOMAIN:themina.local} {
     # HTTP only - no HTTPS/SSL for now
     
+    # MinIO storage API (port 9000)
+    handle /minio* {
+        uri strip_prefix /minio
+        reverse_proxy gr_minio:9000
+    }
+    
+    # MinIO console (port 9001)
+    handle /minio-console* {
+        uri strip_prefix /minio-console
+        reverse_proxy gr_minio:9001
+    }
+    
     # API routes - forward to backend (strip /api prefix)
     handle /api* {
         uri strip_prefix /api
